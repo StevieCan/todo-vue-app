@@ -1,23 +1,10 @@
-/* global Vue, VueRouter, axios */
+
 
 var HomePage = {
   template: "#home-page",
   data: function() {
     return {
-      tasks: [
-            { id: 1, 
-              text: "Finish MVP", 
-              completed: true 
-            }, { 
-              id: 2, 
-              text: "Drink Water", 
-              completed: true
-            }, {
-              id: 3, 
-              text: "Pray cuz u need some Jesus", 
-              completed: false 
-            }
-            ],
+      tasks: [],
       newTask: {
                 id: "",
                 text: "",
@@ -25,7 +12,13 @@ var HomePage = {
                 }
     };
   },
-  created: function() {},
+  created: function() {
+    axios
+    .get('/api/tasks')
+    .then(function(response) {
+      this.tasks = response.data;
+    }.bind(this));
+  },
   methods: {
     addTask: function() {
       var message = "You need to add a task";
@@ -36,7 +29,7 @@ var HomePage = {
                       };
       if (this.newTask.text) {
         this.tasks.push(newTaskInfo);
-        this.newTask = '' ;
+        this.newTask = '' ; 
       } else {
         return message;
       }
@@ -45,7 +38,34 @@ var HomePage = {
     markComplete: function(inputTask) {
       var indexOfTask = this.tasks.indexOf(inputTask);
       this.tasks.splice(indexOfTask, 1);
+    },
+
+    toggleCompleted: function(inputTask) {
+      inputTask.completed = !inputTask.completed;
+    },
+
+    numberOfIncompleteTasks: function(inputTask) {
+      var count = 0;
+
+      this.tasks.forEach(function(task) {
+        if (!task.completed) {
+          count++;
+        }
+      });
+
+      return count;
+    },
+
+    deleteCompleted: function() {
+      var incompleteTasks = [];
+      this.tasks.forEach(function(task) {
+        if (!task.completed) {
+          incompleteTasks.push(task);
+        }
+      });
+      this.tasks = incompleteTasks;
     }
+
   },
   computed: {}
 };
